@@ -1,0 +1,46 @@
+<div class="container mt-5 p-2">
+    <div class="form-group mb-5">
+        <input type="search" class="form-control" id="search" [(ngModel)]="search"
+            placeholder="Search by 'status' | 'position'">
+        <button (click)="searchEmp()" class="btn btn-info mt-3">Search</button>
+    </div>
+
+    <div class="row mb-5">
+        <button class="btn btn-primary w-25" [routerLink]="['new']">Add Employee</button>
+    </div>
+
+    <div class="row gap-2">
+
+        <div class="card content" *ngFor="let emp of employees">
+            <div class="card-body ">
+                <h5 class="card-title">Employee Name: {{emp.empName}}</h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Position: {{emp.position}}</h6>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Date of Joining: {{emp.joiningDate |
+                    date:'dd/MM/yyyy'}}</h6>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Email Id: {{emp.email}}</h6>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Employee City: {{emp.empCity}}</h6>
+                <h6 class="card-subtitle mb-2 text-body-secondary" [ngStyle]="{color:(emp.status)?'green':'red'}">
+                    Status:
+                    {{emp.status ? 'Active': 'Inactive'}}</h6>
+
+                <div class="d-flex justify-content-between">
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-warning" [routerLink]="[`${emp.empId}/edit`]">Edit</button>
+                        <button class="btn btn-danger" (click)="deleteEmp(emp.empId)">Delete</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-dark" [routerLink]="[emp.empId]">Get Employee Info</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="d-flex justify-content-between">
+            <button (click)="goToPrevious()" [disabled]="currentPage===1" class="btn btn-info">Previous</button>
+            <button (click)="goToNext()" [disabled]="currentPage===lastPage" class="btn btn-info">Next</button>
+        </div>
+    </div>
+</div>
+
+<router-outlet></router-outlet>

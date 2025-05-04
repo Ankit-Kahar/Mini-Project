@@ -1,0 +1,66 @@
+<h4 class="text-center mt-4 display-6">{{id==0?"Add Employee":"Edit Employee"}}</h4>
+
+<div class="w-50  mx-auto border rounded p-4 mt-4 shadow" style="background-color: azure;">
+    <form [formGroup]="employeeForm">
+
+        <div>
+            <input type="number" class="form-control mt-3" placeholder="Enter Employee id" formControlName="empId">
+
+        </div>
+
+        <div>
+            <input type="text" class="form-control mt-3 " placeholder="Enter Employee Name" formControlName="empName">
+
+        </div>
+
+        <div>
+            <input type="text" class="form-control mt-3" placeholder="Enter Employee Position"
+                formControlName="position">
+
+        </div>
+
+        <div class="d-flex mt-3">
+            <label class="me-3 mt-1">JoiningDate</label>
+            <input type="date" class="form-control " placeholder="Enter Employee JoiningDate"
+                formControlName="joiningDate">
+
+        </div>
+
+        <div>
+
+            <select class="border p-2 rounded w-100 mt-3" formControlName="status">
+                <option value="true">Active</option>
+                <option value="fale">InActive</option>
+            </select>
+
+        </div>
+
+
+        <div>
+
+            <input type="email" class="form-control mt-3" placeholder="Enter Employee Email" formControlName="email">
+
+        </div>
+
+        <div>
+
+            <input type="tel" class="form-control mt-3" placeholder="Enter Employee PhoneNo" formControlName="phoneNo">
+
+        </div>
+
+        <div>
+
+            <input type="text" class="form-control mt-3" placeholder="Enter Employee City" formControlName="empCity">
+
+        </div>
+
+        <div class="d-flex justify-content-center align-items-center">
+
+            <button class="btn btn-outline-primary mt-4 " (click)="id==0?addEmployee():editEmployee(id)">{{id==0?"Add
+                Employee":"Edit Employee"}}</button>
+        </div>
+
+    </form>
+</div>
+
+<router-outlet></router-outlet>

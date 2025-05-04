@@ -1,0 +1,21 @@
+<div class="container p-4 ">
+    <h1 class="text-center">Employee Details</h1>
+    <div class="card content m-auto"
+        style=" width: 25rem; height: 25rem; align-items: center; justify-content: center;">
+        <div class="card-body">
+            <h5 class="card-title">{{employee.empName}}</h5>
+            <h6 class="card-subtitle mb-2 text-body-secondary">{{employee.position}}</h6>
+
+            <div class="d-flex justify-content-between">
+                <div class="d-flex gap-3">
+                    <button class="btn btn-warning" routerLink="profile">Get Profile Info</button>
+                    <button class="btn btn-danger" routerLink="project" [disabled]="employee.projects.length == 0">Get
+                        Assigned
+                        Project</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<router-outlet></router-outlet>
