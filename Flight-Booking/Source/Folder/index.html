@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flight Search</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    #app {
+      background-color: rgb(222, 237, 155);
+    }
+
+  </style>
+</head>
+
+<body class="mb-5">
+
+  <div id="app">
+    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success">
+            <h5 class="modal-title" id="welcomeModalLabel">Welcome to the Airlines!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            We're glad to have you with us. Enjoy browsing and booking flights.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="header-placeholder"></div>
+
+    <div id="sidebar-placeholder"></div>
+
+    <div class="content">
+
+      <div id="carousel-placeholder" class="mt-5 bg-white"></div>
+
+      <nav class="bg-warning border-bottom shadow-sm py-3 rounded text-primary">
+        <div class="container">
+          <form class="row gy-2 gx-3 align-items-center">
+            <div class="col-md-3">
+              <label for="Source" class="form-label">Source</label>
+              <select name="Source" id="Source" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
+              <label for="Destination" class="form-label">Destination</label>
+              <select name="Destination" id="Destination" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
+              <label for="departureDate" class="form-label">Departure Date</label>
+              <input type="text" name="departureDate" id="departureDate" class="form-control" placeholder="YYYY-MM-DD">
+            </div>
+            <div class="col-md-3">
+              <label for="txtSearch" class="form-label">Search Flights</label>
+              <input type="search" class="form-control" placeholder="Search by name" id="txtSearch">
+            </div>
+            <div class="col-md-3 d-flex mt-3">
+              <button type="button" id="btnSearch" onclick="displayFlights()" class="btn btn-primary w-100">Search</button>
+            </div>
+          </form>
+        </div>
+      </nav>
+
+      <div class="mt-4 bg-danger rounded">
+        <h4 class="mb-3 text-center p-3">Available Flights</h4>
+        <div class="table-responsive">
+          <table id="FlightList" class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-dark">
+              <tr>
+                <th>Flight Name</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Price</th>
+                <th>Booking</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="footer-placeholder"></div>
+    </div>
+
+    <script>
+      window.addEventListener('load', () => {
+        const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'), {
+          backdrop: 'static',  
+          keyboard: false      
+        });
+        welcomeModal.show();
+
+        setTimeout(() => {
+          welcomeModal.hide();
+        }, 5000);
+      });
+
+      function loadComponents() {
+        fetch('header.html')
+          .then(response => response.text())
+          .then(html => {
+            document.getElementById('header-placeholder').innerHTML = html;
+          });
+
+        fetch('sidebar.html')
+          .then(response => response.text())
+          .then(html => {
+            document.getElementById('sidebar-placeholder').innerHTML = html;
+
+            const currentPage = window.location.pathname.split("/").pop();
+            const links = document.querySelectorAll(".sidebar a");
+            links.forEach(link => {
+              if (link.getAttribute("href") === currentPage) {
+                link.classList.add("active");
+              }
+            });
+          });
+
+        fetch('carousel.html')
+          .then(response => response.text())
+          .then(html => {
+            document.getElementById('carousel-placeholder').innerHTML = html;
+          });
+
+        fetch('footer.html')
+          .then(response => response.text())
+          .then(html => {
+            document.getElementById('footer-placeholder').innerHTML = html;
+          });
+      }
+
+      loadComponents();
+
+      let sourceDropdown = document.getElementById("Source");
+      let destinationDropdown = document.getElementById("Destination");
+      let depart_Date = document.getElementById("departureDate");
+      let searchFlight = document.getElementById("txtSearch");
+      let table = document.getElementById("FlightList").getElementsByTagName('tbody')[0];
+
+      let t_date = "2024-01-02";
+      const today = new Date(t_date);
+      today.setHours(0, 0, 0, 0);
+
+      const next15Days = new Date(t_date);
+      next15Days.setDate(today.getDate() + 15);
+      next15Days.setHours(23, 59, 59, 999);
+
+      let data;
+
+      async function fetchFlightData() {
+        try {
+          const response = await fetch("data.json");
+          data = await response.json();
+          populateDropdowns();
+          displayFlights();
+        } catch (error) {
+          console.error("Error fetching flight data:", error);
+        }
+      }
+
+      function populateDropdowns() {
+        sourceDropdown.innerHTML = `<option value="">All</option>`;
+        data.sources.forEach(s => {
+          sourceDropdown.innerHTML += `<option value='${s.id}'>${s.name}</option>`;
+        });
+
+        destinationDropdown.innerHTML = `<option value="">All</option>`;
+        data.destinations.forEach(d => {
+          destinationDropdown.innerHTML += `<option value='${d.id}'>${d.name}</option>`;
+        });
+      }
+
+      function displayFlights() {
+        let selectSource = sourceDropdown.value;
+        let selectDestination = destinationDropdown.value;
+        let enteredDate = depart_Date.value;
+        let searchtext = searchFlight.value.trim().toLowerCase();
+
+        let searchedFlights = data.flights.filter(flight =>
+          searchtext === "" || flight.name.toLowerCase().includes(searchtext)
+        );
+
+        let filteredFlights = searchedFlights.filter(flight => {
+          const flightDate = new Date(flight.departureDate);
+          flightDate.setHours(0, 0, 0, 0);
+
+          return (
+            flightDate >= today &&
+            flightDate <= next15Days &&
+            (selectSource === "" || flight.sourceID == selectSource) &&
+            (selectDestination === "" || flight.destinationID == selectDestination) &&
+            (enteredDate === "" || flight.departureDate === enteredDate)
+          );
+        });
+
+        table.innerHTML = "";
+
+        filteredFlights.forEach(e => {
+          let src = data.sources.find(s => s.id === e.sourceID)?.name;
+          let dstn = data.destinations.find(d => d.id === e.destinationID)?.name;
+
+          let row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${e.name}</td>
+            <td>${src}</td>
+            <td>${dstn}</td>
+            <td>$${e.price}</td>
+            <td><button class="btn btn-sm btn-info w-50" onclick="bookFlight(${e.flightID})">Book</button></td>
+          `;
+          table.appendChild(row);
+        });
+      }
+
+      function bookFlight(flightID) {
+        window.location.href = `FlightBooking.html?id=${flightID}`;
+      }
+
+      sourceDropdown.addEventListener("change", displayFlights);
+      destinationDropdown.addEventListener("change", displayFlights);
+      depart_Date.addEventListener("change", displayFlights);
+      searchFlight.addEventListener("input", displayFlights);
+      document.getElementById("btnSearch").addEventListener("click", displayFlights);
+
+      fetchFlightData();
+    </script>
+</body>
+
+</html>

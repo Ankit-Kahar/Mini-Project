@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flight Booking</title>
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+      body {
+        background: linear-gradient(-45deg, #e3f2fd, #ffffff, #e0f7fa, #ffffff);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+      }
+
+      @keyframes gradientBG {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .booking-form {
+        width: 100%;
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 2.5rem;
+        background-color: #fdfdfd;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        position: relative;
+      }
+
+      input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
+        transition: all 0.3s ease-in-out;
+      }
+
+      .char-count {
+        font-size: 0.85rem;
+        color: #6c757d;
+      }
+
+      .char-count.warning {
+        color: orange;
+      }
+
+      .error-text {
+        color: red;
+        font-size: 0.9rem;
+      }
+
+      .spinner-border {
+        width: 2rem;
+        height: 2rem;
+      }
+
+      #loader {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+
+      @keyframes shake {
+        0%, 100% {
+          transform: translateX(0);
+        }
+        20%, 60% {
+          transform: translateX(-5px);
+        }
+        40%, 80% {
+          transform: translateX(5px);
+        }
+      }
+
+      .shake {
+        animation: shake 0.3s;
+      }
+
+      #priceTooltip {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        background-color: #17a2b8;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="booking-form">
+      <div id="loader" class="d-none">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
+
+      <div id="priceTooltip" class="d-none">Total Updated!</div>
+
+      <h3 class="text-center mb-4 border-bottom pb-2 border-dark">
+        Flight Booking
+      </h3>
+
+      <div class="mb-3 row">
+        <label class="col-sm-4 col-form-label">Flight Name</label>
+        <div class="col-sm-8">
+          <label
+            class="form-control-plaintext fw-bold text-primary"
+            id="flight_name"
+          ></label>
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-4 col-form-label">Price</label>
+        <div class="col-sm-8">
+          <label
+            class="form-control-plaintext fw-bold text-success"
+            id="flight_price"
+          ></label>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="Name" class="form-label">Name of the Person</label>
+        <input
+          type="text"
+          id="Name"
+          class="form-control"
+          placeholder="Enter Person Name"
+          maxlength="50"
+        />
+        <div class="char-count" id="nameCharCount">0 / 50</div>
+        <p id="ErrorName" class="error-text"></p>
+      </div>
+
+      <div class="mb-3">
+        <label for="Qty" class="form-label">No of Persons</label>
+        <input
+          type="number"
+          id="Qty"
+          class="form-control"
+          placeholder="Total Persons"
+          min="1"
+          max="10"
+        />
+        <p id="ErrorQty" class="error-text"></p>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-4 col-form-label">Tax (10%)</label>
+        <div class="col-sm-8">
+          <label class="form-control-plaintext" id="Tax"></label>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="total_price" class="form-label">Total Price</label>
+        <input type="text" id="total_price" class="form-control" disabled />
+      </div>
+
+      <div class="text-center">
+        <button id="btnBook" class="btn btn-primary w-100">
+          <span id="btnText">Book Flight</span>
+          <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div
+      class="modal fade"
+      id="successModal"
+      tabindex="-1"
+      aria-labelledby="successModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title w-100 text-center" id="successModalLabel">
+              Booking Confirmed
+            </h5>
+          </div>
+          <div class="modal-body text-center">
+            <p>Your flight has been booked successfully! Redirecting...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const flightName = document.getElementById("flight_name");
+      const price = document.getElementById("flight_price");
+      const personName = document.getElementById("Name");
+      const qty = document.getElementById("Qty");
+      const tax = document.getElementById("Tax");
+      const totalPrice = document.getElementById("total_price");
+      const errorName = document.getElementById("ErrorName");
+      const errorQty = document.getElementById("ErrorQty");
+      const booking = document.getElementById("btnBook");
+      const nameCharCount = document.getElementById("nameCharCount");
+      const loader = document.getElementById("loader");
+      const tooltip = document.getElementById("priceTooltip");
+
+      const btnText = document.getElementById("btnText");
+      const btnSpinner = document.getElementById("btnSpinner");
+
+      const crypto = window.crypto || window.msCrypto;
+      const array = new Uint32Array(1);
+      crypto.getRandomValues(array);
+
+      let departureDate, pnrNumber;
+      const today = new Date();
+
+      const getQueryParam = (param) => {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      };
+
+      const flightID = getQueryParam("id");
+
+      async function fetchFlightDetails() {
+        loader.classList.remove("d-none");
+        try {
+          const response = await fetch("data.json");
+          const data = await response.json();
+
+          const selectedFlight = data.flights.find(
+            (f) => f.flightID == flightID
+          );
+
+          if (selectedFlight) {
+            pnrNumber = selectedFlight.flightID + array[0];
+            flightName.innerText = selectedFlight.name;
+            price.innerText = `$${selectedFlight.price}`;
+            price.dataset.value = selectedFlight.price;
+            departureDate = new Date(
+              selectedFlight.departureDate
+            ).toLocaleDateString();
+
+            // Fade in effect
+            flightName.style.opacity = 0;
+            price.style.opacity = 0;
+            setTimeout(() => {
+              flightName.style.transition = "opacity 0.6s";
+              price.style.transition = "opacity 0.6s";
+              flightName.style.opacity = 1;
+              price.style.opacity = 1;
+            }, 100);
+          } else {
+            document.querySelector(".booking-form").innerHTML =
+              "<h4 class='text-danger text-center'>Flight not found</h4>";
+          }
+        } catch (err) {
+          console.error("Fetch error", err);
+        } finally {
+          loader.classList.add("d-none");
+        }
+      }
+
+      function calculateTotalPrice() {
+        let qtyVal = parseInt(qty.value);
+        let basePrice = parseFloat(price.dataset.value);
+
+        if (isNaN(qtyVal) || qtyVal < 1 || qtyVal > 10) {
+          errorQty.innerText = "Number of persons must be between 1 and 10.";
+          totalPrice.value = "";
+          tax.innerText = "";
+          return;
+        }
+
+        errorQty.innerText = "";
+        let taxAmount = basePrice * qtyVal * 0.1;
+        let finalPrice = basePrice * qtyVal + taxAmount;
+
+        tax.innerText = `$${taxAmount.toFixed(2)}`;
+        totalPrice.value = `$${finalPrice.toFixed(2)}`;
+
+        // Show tooltip
+        tooltip.classList.remove("d-none");
+        tooltip.style.opacity = 1;
+        setTimeout(() => {
+          tooltip.style.opacity = 0;
+          setTimeout(() => tooltip.classList.add("d-none"), 500);
+        }, 1000);
+      }
+
+      function bookFlight() {
+        let nameVal = personName.value.trim();
+        let qtyVal = qty.value.trim();
+
+        if (nameVal.length < 4) {
+          errorName.innerText = "Minimum 4 characters required.";
+          personName.classList.add("shake");
+          setTimeout(() => personName.classList.remove("shake"), 300);
+          return;
+        }
+
+        if (qtyVal === "" || isNaN(qtyVal) || qtyVal < 1 || qtyVal > 10) {
+          errorQty.innerText = "Number of persons must be between 1 and 10.";
+          qty.classList.add("shake");
+          setTimeout(() => qty.classList.remove("shake"), 300);
+          return;
+        }
+
+        errorName.innerText = "";
+        errorQty.innerText = "";
+
+        btnText.textContent = "Booking...";
+        btnSpinner.classList.remove("d-none");
+
+        setTimeout(() => {
+          let bookingData = {
+            pnrNumber: pnrNumber,
+            flightName: flightName.innerText,
+            totalPrice: totalPrice.value,
+            totalQty: qtyVal,
+            dateOfBooking: today.toLocaleDateString(),
+            dateOfDeparture: departureDate,
+          };
+
+          let stored = localStorage.getItem("bookingDetails");
+          stored = stored ? JSON.parse(stored) : [];
+          stored.push(bookingData);
+          localStorage.setItem("bookingDetails", JSON.stringify(stored));
+
+          btnText.textContent = "Book Flight";
+          btnSpinner.classList.add("d-none");
+
+          const modal = new bootstrap.Modal(
+            document.getElementById("successModal")
+          );
+          modal.show();
+
+          document
+            .getElementById("successModal")
+            .addEventListener("hidden.bs.modal", () => {
+              window.location.href = "BookingHistory.html";
+            });
+        }, 1000);
+      }
+
+      personName.addEventListener("input", () => {
+        const len = personName.value.length;
+        nameCharCount.textContent = `${len} / 50`;
+        nameCharCount.classList.toggle("warning", len >= 40);
+      });
+
+      qty.addEventListener("input", calculateTotalPrice);
+      booking.addEventListener("click", bookFlight);
+      fetchFlightDetails();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,99 @@
+{
+   "destinations": [
+    { "id": 1, "name": "New York (JFK)" },
+    { "id": 2, "name": "London (LHR)" },
+    { "id": 3, "name": "Tokyo (NRT)" },
+    { "id": 4, "name": "Paris (CDG)" },
+    { "id": 5, "name": "Dubai (DXB)" }
+  ],
+  "sources": [
+    { "id": 1, "name": "Los Angeles (LAX)" },
+    { "id": 2, "name": "Chicago (ORD)" },
+    { "id": 3, "name": "Frankfurt (FRA)" },
+    { "id": 4, "name": "Singapore (SIN)" },
+    { "id": 5, "name": "Toronto (YYZ)" },
+    { "id": 6, "name": "Sydney (SYD)" }
+  ],
+    "flights": [
+        {
+            "flightID": 1,
+            "name": "Delta DL202",
+            "price": 850,
+            "sourceID": 1,
+            "destinationID": 1,
+            "departureDate": "2024-01-02"
+          },
+        {
+            "flightID": 2,
+            "name": "Flight 2",
+            "price": 250,
+            "sourceID": 3,
+            "destinationID": 4,
+            "departureDate": "2023-12-18"
+        },
+        {
+            "flightID": 3,
+            "name": "Flight 3",
+            "price": 400,
+            "sourceID": 5,
+            "destinationID": 5,
+            "departureDate": "2023-12-20"
+        },
+        {
+            "flightID": 4,
+            "name": "Flight 4",
+            "price": 350,
+            "sourceID": 2,
+            "destinationID": 1,
+            "departureDate": "2023-12-22"
+        },
+        {
+            "flightID": 5,
+            "name": "Flight 5",
+            "price": 280,
+            "sourceID": 4,
+            "destinationID": 3,
+            "departureDate": "2023-12-25"
+        },
+        {
+            "flightID": 6,
+            "name": "Flight 6",
+            "price": 420,
+            "sourceID": 6,
+            "destinationID": 5,
+            "departureDate": "2023-12-28"
+        },
+        {
+            "flightID": 7,
+            "name": "Flight 7",
+            "price": 320,
+            "sourceID": 1,
+            "destinationID": 3,
+            "departureDate": "2023-12-30"
+        },
+        {
+            "flightID": 8,
+            "name": "Singapore Airlines SQ22",
+            "price": 1150,
+            "sourceID": 4,
+            "destinationID": 3,
+            "departureDate": "2024-01-02"
+        },
+        {
+           "flightID": 9,
+            "name": "Qantas QF11",
+            "price": 980,
+            "sourceID": 6,
+            "destinationID": 4,
+            "departureDate": "2024-01-05"
+        },
+        {
+            "flightID": 10,
+            "name": "Air Canada AC856",
+            "price": 830,
+            "sourceID": 5,
+            "destinationID": 2,
+            "departureDate": "2024-01-08"
+        }
+    ]
+}
